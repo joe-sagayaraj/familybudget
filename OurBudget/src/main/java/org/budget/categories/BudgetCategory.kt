@@ -1,6 +1,6 @@
 package org.budget.categories
 
-enum class BudgetCategories(val group: BudgetGroup, val frequency: BudgetFrequency=BudgetFrequency.MONTHLY) {
+enum class BudgetCategory(val group: BudgetGroup, val frequency: BudgetFrequency=BudgetFrequency.MONTHLY) {
     GROCERIES(BudgetGroup.FOOD),
     PERSONAL_CARE(BudgetGroup.WELLNESS),
     PIANO_LESSONS(BudgetGroup.EDUCATION),
