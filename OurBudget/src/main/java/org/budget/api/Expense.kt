@@ -2,17 +2,19 @@ package org.budget.api
 
 import org.budget.categories.BudgetCategory
 import org.budget.service.ExpenseService
-import java.sql.Time
+import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.Date
 
 class Expense() {
     fun add(category: BudgetCategory) {
-        ExpenseService.add(category)
+        print(ExpenseService.Companion.add(category, LocalDate.now(), BigDecimal(100), "USD"))
     }
 
     fun remove() {
 
+    }
+
+    companion object {
+        fun get(): String = "Self referencing companion object"
     }
 }
