@@ -21,5 +21,8 @@ class ExpenseService(private var category: BudgetCategory, private val date: Loc
     fun remove() {
 
     }
+    fun get(category: BudgetCategory): MutableList<ExpenseData>? {
+        return expenses[category]
+    }
 }
 }

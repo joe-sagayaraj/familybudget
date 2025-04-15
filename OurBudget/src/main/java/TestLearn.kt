@@ -11,6 +11,7 @@ fun main() {
         LocalDate.of(2025, 4, 12), BigDecimal(202), "USD")
     ExpenseService.add(BudgetCategory.PSE,
         LocalDate.of(2025, 4, 13), BigDecimal(65), "USD")
-    println(ExpenseService.add(BudgetCategory.GAS,
-        LocalDate.of(2025, 4, 1), BigDecimal(35), "USD"))
+    ExpenseService.add(BudgetCategory.GAS,
+        LocalDate.of(2025, 4, 1), BigDecimal(35), "USD")
+    println(ExpenseService.get(BudgetCategory.GAS))
 }
