@@ -1,6 +1,6 @@
-package org.budget.data
+package joe.budget.data
 
-import org.budget.categories.BudgetCategory
+import joe.budget.categories.BudgetCategory
 import java.math.BigDecimal
 import java.time.LocalDate
 

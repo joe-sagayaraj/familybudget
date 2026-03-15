@@ -1,7 +1,5 @@
-package org.budget;
-
-import org.budget.api.Expense;
-import org.budget.categories.BudgetCategory;
+import joe.budget.api.Expense;
+import joe.budget.categories.BudgetCategory;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.

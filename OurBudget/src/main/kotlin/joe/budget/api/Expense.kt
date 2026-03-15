@@ -1,7 +1,7 @@
-package org.budget.api
+package joe.budget.api
 
-import org.budget.categories.BudgetCategory
-import org.budget.service.ExpenseService
+import joe.budget.categories.BudgetCategory
+import joe.budget.service.ExpenseService
 import java.math.BigDecimal
 import java.time.LocalDate
 
