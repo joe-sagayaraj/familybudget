@@ -5,24 +5,28 @@ import joe.budget.data.ExpenseData
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class ExpenseService(private var category: BudgetCategory, private val date: LocalDate = LocalDate.now(),
-                     private val price: BigDecimal, private val currency: String = "USD") {
+class ExpenseService {
+    private val expenses: MutableMap<BudgetCategory, MutableList<ExpenseData>> = mutableMapOf()
 
-    companion object  {
-        @JvmStatic
-        public val expenses: MutableMap<BudgetCategory, MutableList<ExpenseData>> = mutableMapOf()
-    fun add(category: BudgetCategory, date: LocalDate, price: BigDecimal, currency: String?):
+
+
+    fun add(category: BudgetCategory, date: LocalDate, price: BigDecimal, currency: String):
             MutableMap<BudgetCategory, MutableList<ExpenseData>> {
-        //println("Expense added for category $category on ${LocalDate.now()}")
-        expenses.getOrPut(category) {mutableListOf()}.add(ExpenseData(date, price, currency!!) )
+        expenses.getOrPut(category) { mutableListOf() }.add(ExpenseData(date, price, currency))
         return expenses
     }
 
-    fun remove() {
 
+    fun removeByDate(category: BudgetCategory, date: LocalDate) {
+        expenses[category]?.removeAll { it.date == date }
+    }
+
+    fun removeFirst(category: BudgetCategory, date: LocalDate) {
+        val list = expenses[category] ?: return
+        val index = list.indexOfFirst { it.date == date }
+        if (index != -1) list.removeAt(index)
     }
     fun get(category: BudgetCategory): MutableList<ExpenseData>? {
         return expenses[category]
     }
-}
 }

@@ -1,20 +1,27 @@
 package joe.budget.api
 
 import joe.budget.categories.BudgetCategory
+import joe.budget.data.ExpenseData
 import joe.budget.service.ExpenseService
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class Expense() {
-    fun add(category: BudgetCategory) {
-        print(ExpenseService.Companion.add(category, LocalDate.now(), BigDecimal(100), "USD"))
+class Expense {
+    private val service = ExpenseService()
+
+    fun add(category: BudgetCategory, date: LocalDate = LocalDate.now(), price: BigDecimal, currency: String = "USD") {
+        service.add(category, date, price, currency)
     }
 
-    fun remove() {
+    fun get(category: BudgetCategory): List<ExpenseData>? =
+        service.get(category)
 
+
+    fun removeByDate(category: BudgetCategory, date: LocalDate) {
+        service.removeByDate(category, date)
     }
 
-    companion object {
-        fun get(): String = "Self referencing companion object"
+    fun removeFirst(category: BudgetCategory, date: LocalDate) {
+        service.removeFirst(category, date)
     }
 }
