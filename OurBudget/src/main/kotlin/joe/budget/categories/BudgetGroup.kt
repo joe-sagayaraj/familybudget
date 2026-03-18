@@ -1,0 +1,5 @@
+package joe.budget.categories
+
+enum class BudgetGroup {
+    SUBSCRIPTION, ENTERTAINMENT, EDUCATION, DONATIONS, WELLNESS, MEDICAL, FINANCE, UTILITIES, HOUSING, FOOD, AUTO
+}
