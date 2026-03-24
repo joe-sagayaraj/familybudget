@@ -113,4 +113,45 @@ class ExpenseServiceTest {
 
         assertEquals(1, service.get(BudgetCategory.GAS)?.size)
     }
+
+    // --update--
+
+    @Test
+    fun `update changes price of matching entry` () {
+        val date = LocalDate.of(2025,4,1)
+        //val updatedDate = LocalDate.of(2025,10,1)
+        service.add(BudgetCategory.GAS, date, BigDecimal("50.00"), "USD")
+        service.update(BudgetCategory.GAS, date, BigDecimal("100.00"), "INR")
+        val updatedExpenseData = service.get(BudgetCategory.GAS)?.get(0)
+        assertEquals(BigDecimal("100.00"), updatedExpenseData?.price)
+        assertEquals(date, updatedExpenseData?.date)
+        assertEquals("INR", updatedExpenseData?.currency)
+    }
+
+    @Test
+    fun `update on non-existent category does nothing` () {
+        val date = LocalDate.of(2025, 10,1)
+        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
+        service.update(BudgetCategory.GAS, date, BigDecimal("55.00"), "INR")
+        val expenseData = service.get(BudgetCategory.DINING)
+        assertNotEquals(BigDecimal("55.00"),expenseData?.get(0)?.price)
+        assertNotEquals("INR",expenseData?.get(0)?.currency)
+    }
+
+    @Test
+    fun `update only changes the first matching entry` () {
+        val date = LocalDate.of(2025, 10,1)
+        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
+        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
+        service.update(BudgetCategory.DINING, date, BigDecimal("55.00"), "AUD")
+        val firstUpdatedData = service.get(BudgetCategory.DINING)
+        val secondUpdatedData = service.get(BudgetCategory.DINING)
+        assertEquals(BigDecimal("55.00"),firstUpdatedData?.get(0)?.price)
+        assertNotEquals(BigDecimal("55.00"),firstUpdatedData?.get(1)?.price)
+        assertEquals("AUD",firstUpdatedData?.get(0)?.currency)
+        assertNotEquals("AUD",firstUpdatedData?.get(1)?.currency)
+        assertEquals("INR", firstUpdatedData?.get(1)?.currency)
+
+
+    }
 }

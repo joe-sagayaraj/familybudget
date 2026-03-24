@@ -24,4 +24,8 @@ class Expense {
     fun removeFirst(category: BudgetCategory, date: LocalDate) {
         service.removeFirst(category, date)
     }
+
+    fun update(category: BudgetCategory, date: LocalDate, newPrice: BigDecimal, newCurrency: String) {
+        service.update(category, date, newPrice, newCurrency)
+    }
 }

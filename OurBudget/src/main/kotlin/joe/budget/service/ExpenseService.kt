@@ -29,4 +29,16 @@ class ExpenseService {
     fun get(category: BudgetCategory): MutableList<ExpenseData>? {
         return expenses[category]
     }
+
+    fun getFirstByDate(category: BudgetCategory, date: LocalDate): ExpenseData? {
+        val list = expenses[category] ?: return null
+        val index = list.indexOfFirst { it.date == date }
+        return if (index != -1)  list[index] else null
+    }
+
+    fun update(category: BudgetCategory, date: LocalDate, newPrice: BigDecimal, newCurrency: String) {
+        val list = expenses[category] ?: return
+        val index = list.indexOfFirst { it.date == date }
+        if (index != -1)  list[index] = ExpenseData(date, newPrice, newCurrency)
+    }
 }
