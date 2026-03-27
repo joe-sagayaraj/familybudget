@@ -34,4 +34,5 @@ class Expense {
 
     fun getMonthlySummary(year: Int, month: Int): Map<BudgetCategory, BigDecimal> =
         service.getMonthlySummary(year, month)
+
 }

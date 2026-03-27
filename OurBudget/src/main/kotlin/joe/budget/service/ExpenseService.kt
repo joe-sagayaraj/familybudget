@@ -9,6 +9,7 @@ class ExpenseService {
     private val expenses: MutableMap<BudgetCategory, MutableList<ExpenseData>> = mutableMapOf()
 
 
+
     fun add(category: BudgetCategory, date: LocalDate, price: BigDecimal, currency: String):
             MutableMap<BudgetCategory, MutableList<ExpenseData>> {
         expenses.getOrPut(category) { mutableListOf() }.add(ExpenseData(date, price, currency))
@@ -25,6 +26,11 @@ class ExpenseService {
         val index = list.indexOfFirst { it.date == date }
         if (index != -1) list.removeAt(index)
     }
+
+    fun get(category: BudgetCategory): MutableList<ExpenseData>? {
+        return expenses[category]
+    }
+
 
     fun get(category: BudgetCategory): MutableList<ExpenseData>? {
         return expenses[category]
