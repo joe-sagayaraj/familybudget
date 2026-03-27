@@ -62,3 +62,5 @@ This is a Kotlin/Java family budget application (JVM 15, Kotlin 1.9.23, JUnit 5)
 ### Phase 3 — Browser-ready foundation
 - Repository pattern to separate business logic from storage
 - `ConsoleUI` kept separate from business logic so a REST layer can be added later with minimal rework
+- When adding an expense, allow selecting from both built-in and session-only custom categories (currently only built-in categories are shown)
+
