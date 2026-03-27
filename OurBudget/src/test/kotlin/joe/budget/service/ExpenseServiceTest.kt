@@ -151,7 +151,38 @@ class ExpenseServiceTest {
         assertEquals("AUD",firstUpdatedData?.get(0)?.currency)
         assertNotEquals("AUD",firstUpdatedData?.get(1)?.currency)
         assertEquals("INR", firstUpdatedData?.get(1)?.currency)
+    }
 
+    @Test
+    fun `get all returns all`() {
+        val date = LocalDate.of(2025, 10,1)
+        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
+        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
+        service.add(BudgetCategory.GROCERIES, date, BigDecimal("100.00"), "INR")
+        val result = service.getAll()
+        assertEquals(2, result.size)
+        assertEquals(2, result[BudgetCategory.DINING]?.size)
+        assertEquals(1, result[BudgetCategory.GROCERIES]?.size)
+    }
 
+    @Test
+    fun `get monthly summary returns only the existing categories for the specified period`() {
+        val date = LocalDate.of(2025, 10,1)
+        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
+        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
+        service.add(BudgetCategory.GROCERIES, date, BigDecimal("100.00"), "INR")
+        val date1 = LocalDate.of(2025, 11,1)
+        service.add(BudgetCategory.DINING, date1, BigDecimal("50.00"), "USD")
+        service.add(BudgetCategory.DINING, date1, BigDecimal("100.00"), "INR")
+        service.add(BudgetCategory.GROCERIES, date1, BigDecimal("100.00"), "INR")
+        val date2 = LocalDate.of(2025, 12,1)
+        service.add(BudgetCategory.GAS, date2, BigDecimal("50.00"), "USD")
+        service.add(BudgetCategory.DINING, date2, BigDecimal("100.00"), "INR")
+        service.add(BudgetCategory.DINING, date2, BigDecimal("150.00"), "INR")
+        service.add(BudgetCategory.GROCERIES, date2, BigDecimal("100.00"), "INR")
+        val result = service.getMonthlySummary(2025, 12)
+        assertEquals(3, result.size)
+        assertEquals(BigDecimal("50.00"), result[BudgetCategory.GAS])
+        assertEquals(BigDecimal("250.00"), result[BudgetCategory.DINING])
     }
 }
