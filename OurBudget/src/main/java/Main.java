@@ -1,5 +1,6 @@
 import joe.budget.api.Expense;
 import joe.budget.categories.BudgetCategory;
+import joe.budget.categories.CategoryKey;
 import java.math.BigDecimal;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -16,6 +17,6 @@ public class Main {
             System.out.println("i = " + i);
         }*/
         Expense expense = new Expense();
-        expense.add(BudgetCategory.GROCERIES, null, BigDecimal.valueOf(150), "USD");
+        expense.add(new CategoryKey.BuiltIn(BudgetCategory.GROCERIES), null, BigDecimal.valueOf(150), "USD");
     }
 }
