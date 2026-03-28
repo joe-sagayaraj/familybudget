@@ -1,8 +1,8 @@
 package joe.budget.ui
 
 import joe.budget.api.Expense
-import joe.budget.categories.BudgetCategory
 import joe.budget.categories.BudgetGroup
+import joe.budget.categories.CategoryKey
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,11 +39,11 @@ class ConsoleUI(
 
     private fun addExpense() {
         println("\n-- Add Expense --")
-        val category = promptBuiltInCategory() ?: return
+        val category = promptCategory() ?: return
         val amount = promptAmount() ?: return
         val date = promptDate(LocalDate.now())
         expense.add(category, date, amount)
-        println("Added ${category.name} expense of \$$amount on $date.")
+        println("Added ${category.displayName()} expense of \$$amount on $date.")
     }
 
     // --- View Expenses ---
@@ -61,13 +61,13 @@ class ConsoleUI(
 
     private fun viewByCategory() {
         println("\n-- View by Category --")
-        val category = promptBuiltInCategory() ?: return
+        val category = promptCategory() ?: return
         val entries = expense.get(category)
         if (entries.isNullOrEmpty()) {
-            println("No expenses recorded for ${category.name}.")
+            println("No expenses recorded for ${category.displayName()}.")
             return
         }
-        println("\n${category.name} — ${entries.size} entries")
+        println("\n${category.displayName()} — ${entries.size} entries")
         entries.forEach { println("  ${it.date}  \$${it.price}  ${it.currency ?: ""}") }
         val total = entries.sumOf { it.price }
         println("  " + "─".repeat(30))
@@ -84,7 +84,7 @@ class ConsoleUI(
             return
         }
         println("\nMonthly summary for $monthLabel:")
-        summary.forEach { (cat, total) -> println("  %-20s \$%s".format(cat.name, total)) }
+        summary.forEach { (cat, total) -> println("  %-20s \$%s".format(cat.displayName(), total)) }
         val grandTotal = summary.values.sumOf { it }
         println("  " + "─".repeat(30))
         println("  %-20s \$%s".format("Grand total:", grandTotal))
@@ -94,13 +94,13 @@ class ConsoleUI(
 
     private fun modifyExpense() {
         println("\n-- Modify Expense --")
-        val category = promptBuiltInCategory() ?: return
+        val category = promptCategory() ?: return
         val entries = expense.get(category)
         if (entries.isNullOrEmpty()) {
-            println("No expenses recorded for ${category.name}.")
+            println("No expenses recorded for ${category.displayName()}.")
             return
         }
-        println("\n${category.name} — entries:")
+        println("\n${category.displayName()} — entries:")
         entries.forEachIndexed { i, e -> println("  ${i + 1}. ${e.date}  \$${e.price}  ${e.currency ?: ""}") }
         val index = readInt("Select entry number (or 0 to cancel): ", 0, entries.size)
         if (index == 0) return
@@ -163,12 +163,28 @@ class ConsoleUI(
 
     // --- Input helpers ---
 
-    private fun promptBuiltInCategory(): BudgetCategory? {
-        val categories = registry.allBuiltIn()
-        categories.forEachIndexed { i, c -> println("  ${i + 1}. %-20s %s".format(c.name, c.group.name)) }
-        val index = readInt("> ", 0, categories.size)
+    private fun CategoryKey.displayName(): String = when (this) {
+        is CategoryKey.BuiltIn -> category.name
+        is CategoryKey.Custom -> name
+    }
+
+    private fun promptCategory(): CategoryKey? {
+        val builtIns = registry.allBuiltIn().map { CategoryKey.BuiltIn(it) }
+        val customs = registry.allCustom().map { CategoryKey.Custom(it.name, it.group) }
+        val all: List<CategoryKey> = builtIns + customs
+        if (customs.isNotEmpty()) println("  -- Built-in --")
+        builtIns.forEachIndexed { i, key ->
+            println("  ${i + 1}. %-20s %s".format(key.category.name, key.category.group.name))
+        }
+        if (customs.isNotEmpty()) {
+            println("  -- Session categories --")
+            customs.forEachIndexed { i, key ->
+                println("  ${builtIns.size + i + 1}. %-20s %s".format(key.name, key.group.name))
+            }
+        }
+        val index = readInt("> ", 0, all.size)
         if (index == 0) return null
-        return categories[index - 1]
+        return all[index - 1]
     }
 
     private fun promptAmount(): BigDecimal? {
