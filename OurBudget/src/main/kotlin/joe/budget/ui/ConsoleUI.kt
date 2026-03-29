@@ -1,8 +1,11 @@
 package joe.budget.ui
 
 import joe.budget.api.Expense
+import joe.budget.categories.BudgetCategory
 import joe.budget.categories.BudgetGroup
 import joe.budget.categories.CategoryKey
+import joe.budget.imports.ImportService
+import java.io.File
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -12,6 +15,7 @@ import java.util.Scanner
 class ConsoleUI(
     private val expense: Expense,
     private val registry: CategoryRegistry,
+    private val importService: ImportService,
     private val input: Scanner = Scanner(System.`in`)
 ) {
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -24,12 +28,16 @@ class ConsoleUI(
             println("2. View expenses")
             println("3. Modify expense")
             println("4. Manage categories")
+            println("5. Import from CSV")
+            println("6. Review uncategorized")
             println("0. Exit")
-            when (readInt("> ", 0, 4)) {
+            when (readInt("> ", 0, 6)) {
                 1 -> addExpense()
                 2 -> viewExpenses()
                 3 -> modifyExpense()
                 4 -> manageCategories()
+                5 -> importFromCsv()
+                6 -> reviewUncategorized()
                 0 -> { println("Goodbye!"); return }
             }
         }
@@ -157,6 +165,75 @@ class ConsoleUI(
         if (custom.isNotEmpty()) {
             println("\nSession-only categories (${custom.size}):")
             custom.forEach { println("  %-20s %s".format(it.name, it.group.name)) }
+        }
+    }
+
+    // --- Review Uncategorized ---
+
+    private fun reviewUncategorized() {
+        println("\n-- Review Uncategorized --")
+        val uncategorizedKey = CategoryKey.BuiltIn(BudgetCategory.UNCATEGORIZED)
+        val entries = expense.get(uncategorizedKey)
+        if (entries.isNullOrEmpty()) {
+            println("No uncategorized expenses.")
+            return
+        }
+
+        println("${entries.size} uncategorized expense(s):\n")
+        entries.forEachIndexed { i, e ->
+            val payeeLabel = if (e.payee != null) "  ${e.payee}" else ""
+            println("  ${i + 1}. ${e.date}  \$${e.price}$payeeLabel")
+        }
+
+        while (true) {
+            val index = readInt("\nSelect entry to re-categorize (0 to finish): ", 0, entries.size)
+            if (index == 0) return
+            val entry = entries[index - 1]
+
+            println("Assign category for: ${entry.date}  \$${entry.price}  ${entry.payee ?: ""}")
+            val newCategory = promptCategory() ?: continue
+            if (newCategory == uncategorizedKey) {
+                println("Already uncategorized — no change.")
+                continue
+            }
+
+            expense.recharacterize(uncategorizedKey, entry, newCategory)
+            println("Moved to ${newCategory.displayName()}.")
+
+            val remaining = expense.get(uncategorizedKey)
+            if (remaining.isNullOrEmpty()) {
+                println("All uncategorized expenses resolved.")
+                return
+            }
+        }
+    }
+
+    // --- Import from CSV ---
+
+    private fun importFromCsv() {
+        println("\n-- Import from CSV --")
+        print("File path: ")
+        val path = input.nextLine().trim()
+        if (path.isBlank()) { println("Cancelled."); return }
+        val file = File(path)
+        if (!file.exists()) { println("File not found: $path"); return }
+
+        val summary = importService.import(file)
+
+        println("\nImport complete:")
+        println("  Imported:           ${summary.imported}")
+        println("  Auto-approved:      ${summary.autoApproved}")
+        println("  Uncategorized:      ${summary.uncategorized}")
+        println("  Duplicates skipped: ${summary.duplicates}")
+
+        if (summary.warnings.isNotEmpty()) {
+            println("\nWarnings:")
+            summary.warnings.forEach { println("  ! $it") }
+        }
+
+        val stillPending = importService.pendingCount()
+        if (stillPending > 0) {
+            println("\n$stillPending transaction(s) pending — will auto-approve after ${importService.thresholdDays} days.")
         }
     }
 

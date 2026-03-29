@@ -10,9 +10,8 @@ import java.time.LocalDate
 class ExpenseService(
     private val repository: ExpenseRepository = InMemoryExpenseRepository()
 ) {
-    fun add(category: CategoryKey, date: LocalDate, price: BigDecimal, currency:
-    String) {
-        repository.save(category, ExpenseData(date, price, currency))
+    fun add(category: CategoryKey, date: LocalDate, price: BigDecimal, currency: String, payee: String? = null) {
+        repository.save(category, ExpenseData(date, price, currency, payee))
     }
 
     fun removeByDate(category: CategoryKey, date: LocalDate) {
@@ -42,6 +41,10 @@ class ExpenseService(
 
     fun getAll(): Map<CategoryKey, List<ExpenseData>> =
         repository.findAll()
+
+    fun recharacterize(from: CategoryKey, entry: ExpenseData, to: CategoryKey) {
+        repository.recharacterize(from, entry, to)
+    }
 
     fun getMonthlySummary(year: Int, month: Int): Map<CategoryKey, BigDecimal> =
         getAll().mapValues { (_, entries) ->

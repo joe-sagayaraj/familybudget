@@ -11,4 +11,5 @@ interface ExpenseRepository {
     fun deleteByDate(category: CategoryKey, date: LocalDate)
     fun deleteFirst(category: CategoryKey, date: LocalDate)
     fun update(category: CategoryKey, date: LocalDate, newData: ExpenseData)
+    fun recharacterize(from: CategoryKey, entry: ExpenseData, to: CategoryKey)
 }
