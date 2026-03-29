@@ -2,6 +2,7 @@ package joe.budget.service
 
 import joe.budget.categories.BudgetCategory
 import joe.budget.categories.CategoryKey
+import joe.budget.repository.InMemoryExpenseRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,7 +20,7 @@ class ExpenseServiceTest {
 
     @BeforeEach
     fun setup() {
-        service = ExpenseService()
+        service = ExpenseService(InMemoryExpenseRepository())
     }
 
     // --- add ---
@@ -191,75 +192,18 @@ class ExpenseServiceTest {
         assertEquals(BigDecimal("250.00"), result[DINING])
     }
 
-    // --update--
-
     @Test
-    fun `update changes price of matching entry` () {
-        val date = LocalDate.of(2025,4,1)
-        //val updatedDate = LocalDate.of(2025,10,1)
-        service.add(BudgetCategory.GAS, date, BigDecimal("50.00"), "USD")
-        service.update(BudgetCategory.GAS, date, BigDecimal("100.00"), "INR")
-        val updatedExpenseData = service.get(BudgetCategory.GAS)?.get(0)
-        assertEquals(BigDecimal("100.00"), updatedExpenseData?.price)
-        assertEquals(date, updatedExpenseData?.date)
-        assertEquals("INR", updatedExpenseData?.currency)
-    }
+    fun `updateEntry changes date price and currency atomically`() {
+        val oldDate = LocalDate.of(2025, 4, 1)
+        val newDate = LocalDate.of(2025, 5, 15)
+        service.add(GAS, oldDate, BigDecimal("50.00"), "USD")
 
-    @Test
-    fun `update on non-existent category does nothing` () {
-        val date = LocalDate.of(2025, 10,1)
-        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
-        service.update(BudgetCategory.GAS, date, BigDecimal("55.00"), "INR")
-        val expenseData = service.get(BudgetCategory.DINING)
-        assertNotEquals(BigDecimal("55.00"),expenseData?.get(0)?.price)
-        assertNotEquals("INR",expenseData?.get(0)?.currency)
-    }
+        service.updateEntry(GAS, oldDate, newDate, BigDecimal("99.00"), "EUR")
 
-    @Test
-    fun `update only changes the first matching entry` () {
-        val date = LocalDate.of(2025, 10,1)
-        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
-        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
-        service.update(BudgetCategory.DINING, date, BigDecimal("55.00"), "AUD")
-        val firstUpdatedData = service.get(BudgetCategory.DINING)
-        val secondUpdatedData = service.get(BudgetCategory.DINING)
-        assertEquals(BigDecimal("55.00"),firstUpdatedData?.get(0)?.price)
-        assertNotEquals(BigDecimal("55.00"),firstUpdatedData?.get(1)?.price)
-        assertEquals("AUD",firstUpdatedData?.get(0)?.currency)
-        assertNotEquals("AUD",firstUpdatedData?.get(1)?.currency)
-        assertEquals("INR", firstUpdatedData?.get(1)?.currency)
-    }
-
-    @Test
-    fun `get all returns all`() {
-        val date = LocalDate.of(2025, 10,1)
-        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
-        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
-        service.add(BudgetCategory.GROCERIES, date, BigDecimal("100.00"), "INR")
-        val result = service.getAll()
-        assertEquals(2, result.size)
-        assertEquals(2, result[BudgetCategory.DINING]?.size)
-        assertEquals(1, result[BudgetCategory.GROCERIES]?.size)
-    }
-
-    @Test
-    fun `get monthly summary returns only the existing categories for the specified period`() {
-        val date = LocalDate.of(2025, 10,1)
-        service.add(BudgetCategory.DINING, date, BigDecimal("50.00"), "USD")
-        service.add(BudgetCategory.DINING, date, BigDecimal("100.00"), "INR")
-        service.add(BudgetCategory.GROCERIES, date, BigDecimal("100.00"), "INR")
-        val date1 = LocalDate.of(2025, 11,1)
-        service.add(BudgetCategory.DINING, date1, BigDecimal("50.00"), "USD")
-        service.add(BudgetCategory.DINING, date1, BigDecimal("100.00"), "INR")
-        service.add(BudgetCategory.GROCERIES, date1, BigDecimal("100.00"), "INR")
-        val date2 = LocalDate.of(2025, 12,1)
-        service.add(BudgetCategory.GAS, date2, BigDecimal("50.00"), "USD")
-        service.add(BudgetCategory.DINING, date2, BigDecimal("100.00"), "INR")
-        service.add(BudgetCategory.DINING, date2, BigDecimal("150.00"), "INR")
-        service.add(BudgetCategory.GROCERIES, date2, BigDecimal("100.00"), "INR")
-        val result = service.getMonthlySummary(2025, 12)
-        assertEquals(3, result.size)
-        assertEquals(BigDecimal("50.00"), result[BudgetCategory.GAS])
-        assertEquals(BigDecimal("250.00"), result[BudgetCategory.DINING])
+        val result = service.get(GAS)
+        assertEquals(1, result?.size)
+        assertEquals(newDate, result?.get(0)?.date)
+        assertEquals(BigDecimal("99.00"), result?.get(0)?.price)
+        assertEquals("EUR", result?.get(0)?.currency)
     }
 }

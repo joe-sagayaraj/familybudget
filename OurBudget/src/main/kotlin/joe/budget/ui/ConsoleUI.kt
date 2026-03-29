@@ -113,8 +113,7 @@ class ConsoleUI(
             1 -> {
                 val newAmount = promptAmountOrKeep(selected.price) ?: return
                 val newDate = promptDateOrKeep(selected.date)
-                expense.removeFirst(category, selected.date)
-                expense.add(category, newDate, newAmount)
+                expense.updateEntry(category, selected.date, newDate, newAmount, selected.currency ?: "USD")
                 println("Updated.")
             }
             2 -> {
