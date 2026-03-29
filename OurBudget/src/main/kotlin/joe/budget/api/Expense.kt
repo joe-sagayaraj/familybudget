@@ -29,6 +29,11 @@ class Expense {
         service.update(category, date, newPrice, newCurrency)
     }
 
+    fun updateEntry(category: CategoryKey, oldDate: LocalDate, newDate: LocalDate, newPrice: BigDecimal, newCurrency:
+    String) {
+        service.updateEntry(category, oldDate, newDate, newPrice, newCurrency)
+    }
+
     fun getAll(): Map<CategoryKey, List<ExpenseData>> =
         service.getAll()
 
