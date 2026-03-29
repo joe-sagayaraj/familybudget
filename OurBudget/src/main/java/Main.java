@@ -17,6 +17,6 @@ public class Main {
             System.out.println("i = " + i);
         }*/
         Expense expense = new Expense();
-        expense.add(new CategoryKey.BuiltIn(BudgetCategory.GROCERIES), null, BigDecimal.valueOf(150), "USD");
+        expense.add(new CategoryKey.BuiltIn(BudgetCategory.GROCERIES), null, BigDecimal.valueOf(150), "USD", null);
     }
 }

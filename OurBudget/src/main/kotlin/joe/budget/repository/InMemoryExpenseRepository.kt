@@ -33,4 +33,9 @@ class InMemoryExpenseRepository : ExpenseRepository {
         val index = list.indexOfFirst { it.date == date }
         if (index != -1) list[index] = newData
     }
+
+    override fun recharacterize(from: CategoryKey, entry: ExpenseData, to: CategoryKey) {
+        store[from]?.remove(entry)
+        store.getOrPut(to) { mutableListOf() }.add(entry)
+    }
 }

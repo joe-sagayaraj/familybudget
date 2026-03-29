@@ -9,8 +9,8 @@ import java.time.LocalDate
 class Expense {
     private val service = ExpenseService()
 
-    fun add(category: CategoryKey, date: LocalDate = LocalDate.now(), price: BigDecimal, currency: String = "USD") {
-        service.add(category, date, price, currency)
+    fun add(category: CategoryKey, date: LocalDate = LocalDate.now(), price: BigDecimal, currency: String = "USD", payee: String? = null) {
+        service.add(category, date, price, currency, payee)
     }
 
     fun get(category: CategoryKey): List<ExpenseData>? =
@@ -36,6 +36,10 @@ class Expense {
 
     fun getAll(): Map<CategoryKey, List<ExpenseData>> =
         service.getAll()
+
+    fun recharacterize(from: CategoryKey, entry: joe.budget.data.ExpenseData, to: CategoryKey) {
+        service.recharacterize(from, entry, to)
+    }
 
     fun getMonthlySummary(year: Int, month: Int): Map<CategoryKey, BigDecimal> =
         service.getMonthlySummary(year, month)

@@ -23,5 +23,6 @@ enum class BudgetCategory(val group: BudgetGroup, val frequency: BudgetFrequency
     HOUSE_CLEANING(BudgetGroup.UTILITIES, BudgetFrequency.BIMONTHLY),
     PEST_CONTROL(BudgetGroup.UTILITIES, BudgetFrequency.QUARTERLY),
     SEWER(BudgetGroup.UTILITIES),
-    WATER(BudgetGroup.UTILITIES, BudgetFrequency.BIMONTHLY)
+    WATER(BudgetGroup.UTILITIES, BudgetFrequency.BIMONTHLY),
+    UNCATEGORIZED(BudgetGroup.FINANCE)
 }
